@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "node-opcua": "^2.157.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "name": "project",
+  "version": "1.0.0",
+  "main": "client.js",
+  "devDependencies": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
