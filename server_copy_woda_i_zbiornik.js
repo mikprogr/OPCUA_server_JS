@@ -31,11 +31,15 @@ const { OPCUAServer, Variant, DataType } = require("node-opcua");
     nodeId: "ns=1;s=ZbiornikPoziom",
     dataType: "Double",
     value: {
-      get: () =>
-        new Variant({
+      get: () => {
+        const poziom = Math.round(Math.random() * 100); // przykładowo 0-100 litrów
+        // Wyświetlanie wizualizacji w konsoli
+        renderPoziom(poziom);
+        return new Variant({
           dataType: DataType.Double,
-          value: Math.round(Math.random() * 100) // przykładowo 0-100 litrów
-        })
+          value: poziom
+        });
+      }
     }
   });
 
@@ -60,6 +64,20 @@ const { OPCUAServer, Variant, DataType } = require("node-opcua");
       }
     }
   });
+
+  // Funkcja do renderowania poziomu w konsoli
+  function renderPoziom(poziom) {
+    const maxPoziom = 100; // Maksymalny poziom
+    const barLength = 50;  // Długość wykresu (ilość "█" w pasku)
+
+    // Obliczenie liczby "█" w zależności od poziomu
+    const filledLength = Math.round((poziom / maxPoziom) * barLength);
+    const emptyLength = barLength - filledLength;
+
+    // Wyświetlenie poziomu w formie graficznej
+    const bar = "█".repeat(filledLength) + "░".repeat(emptyLength);
+    console.log(`Poziom zbiornika: ${poziom} litrów [${bar}]`);
+  }
 
   await server.start();
 
