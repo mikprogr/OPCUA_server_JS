@@ -1,9 +1,15 @@
-const { OPCUAServer, Variant, DataType } = require("node-opcua");
+const {
+  OPCUAServer,
+  Variant,
+  DataType,
+  SecurityPolicy,
+  MessageSecurityMode
+} = require("node-opcua");
 
-// Funkcja wizualizacji poziomu zbiornika w konsoli
+// Funkcja do wizualizacji poziomu zbiornika
 function renderPoziom(poziom) {
   const max = 100;
-  const width = 40; // szerokość wykresu
+  const width = 40;
   const filled = Math.round((poziom / max) * width);
   const empty = width - filled;
 
@@ -15,9 +21,14 @@ function renderPoziom(poziom) {
   const server = new OPCUAServer({
     port: 4334,
     resourcePath: "/UA/ZbiornikServer",
+
+    // 🔧 Wyłączamy zabezpieczenia — naprawia błędy RSA PKCS#1 w Node 20+
+    securityPolicies: [SecurityPolicy.None],
+    securityModes: [MessageSecurityMode.None],
+
     buildInfo: {
       productName: "ZbiornikOPCUAServer",
-      buildNumber: "1",
+      buildNumber: "2",
       buildDate: new Date()
     }
   });
@@ -27,19 +38,19 @@ function renderPoziom(poziom) {
   const addressSpace = server.engine.addressSpace;
   const namespace = addressSpace.getOwnNamespace();
 
-  // Tworzenie obiektu Zbiornik
+  // Obiekt Zbiornik
   const zbiornik = namespace.addObject({
     organizedBy: addressSpace.rootFolder.objects,
     browseName: "Zbiornik"
   });
 
-  // Zmienna poziomu
+  // Zmienna: Poziom
   namespace.addVariable({
     componentOf: zbiornik,
     browseName: "Poziom",
     nodeId: "ns=1;s=ZbiornikPoziom",
     dataType: "Double",
-    minimumSamplingInterval: 1000, // aby nie było ostrzeżeń
+    minimumSamplingInterval: 500, // 🔧 usuwa warningi
     value: {
       get: () => {
         const poziom = Math.round(Math.random() * 100);
@@ -55,7 +66,7 @@ function renderPoziom(poziom) {
     }
   });
 
-  // Zmienna zaworu
+  // Zmienna: Zawór dolotowy
   let zaworOtwarte = false;
 
   namespace.addVariable({
@@ -73,7 +84,9 @@ function renderPoziom(poziom) {
 
       set: (variant) => {
         zaworOtwarte = variant.value;
-        console.log("Stan zaworu zmieniono na:", zaworOtwarte ? "OTWARTY" : "ZAMKNIĘTY");
+        console.log(
+          "Stan zaworu:", zaworOtwarte ? "OTWARTY" : "ZAMKNIĘTY"
+        );
         return true;
       }
     }
