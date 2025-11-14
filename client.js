@@ -3,7 +3,7 @@ const { OPCUAClient, AttributeIds } = require("node-opcua");
 (async () => {
     const endpointUrl = "opc.tcp://<IP_LUB_DNS>:46391/UA/MyServer";
 
-    const client = OPCUAClient.create({ endpoint_must_exist: false });
+    const client = OPCUAClient.create({ endpointMustExist: false });
 
     try {
         await client.connect(endpointUrl);
